@@ -41,9 +41,8 @@ pipeline {
         stage ('push to docker') {
             steps {
             echo 'Image push to docker hub'
-            sh 'docker push'
+            sh 'docker push astro103/devops-hub:${TAG}'
             }
         }
-    }
-    
+    }  
 }
