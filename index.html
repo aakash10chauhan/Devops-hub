@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-accent="teal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Hub — Community for Engineers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============ CSS VARIABLES ============ */
+:root {
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-code: 'IBM Plex Mono', monospace;
+
+  /* Accent palettes */
+  --accent-teal: #00b09b;
+  --accent-orange: #f7631b;
+  --accent-violet: #7c3aed;
+  --accent-rose: #e11d48;
+  --accent-sky: #0284c7;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --transition: 0.2s ease;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #f4f5f7;
+  --bg-card: #ffffff;
+  --bg-input: #f0f2f5;
+  --bg-sidebar: #ffffff;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --border: #e5e7eb;
+  --border-focus: var(--accent);
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+  --code-bg: #1e1e2e;
+  --code-text: #cdd6f4;
+  --tag-bg: #e8f5f4;
+  --tag-text: var(--accent);
+  --upvote-bg: #f0fdf4;
+  --upvote-text: #16a34a;
+  --solved-bg: #ecfdf5;
+  --solved-border: #6ee7b7;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --bg-card: #1a1d27;
+  --bg-input: #252836;
+  --bg-sidebar: #141720;
+  --text: #e8eaf0;
+  --text-muted: #8b90a0;
+  --text-light: #555b6e;
+  --border: #252836;
+  --border-focus: var(--accent);
+  --shadow: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.4);
+  --code-bg: #11131c;
+  --code-text: #cdd6f4;
+  --tag-bg: rgba(0,176,155,0.12);
+  --tag-text: var(--accent);
+  --upvote-bg: rgba(22,163,74,0.1);
+  --upvote-text: #4ade80;
+  --solved-bg: rgba(52,211,153,0.08);
+  --solved-border: rgba(52,211,153,0.3);
+}
+
+/* Accent color application */
+[data-accent="teal"]   { --accent: var(--accent-teal);   --accent-glow: rgba(0,176,155,0.18); }
+[data-accent="orange"] { --accent: var(--accent-orange);  --accent-glow: rgba(247,99,27,0.18); }
+[data-accent="violet"] { --accent: var(--accent-violet);  --accent-glow: rgba(124,58,237,0.18); }
+[data-accent="rose"]   { --accent: var(--accent-rose);    --accent-glow: rgba(225,29,72,0.18); }
+[data-accent="sky"]    { --accent: var(--accent-sky);     --accent-glow: rgba(2,132,199,0.18); }
+
+/* ============ RESET ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  transition: background var(--transition), color var(--transition);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+button { cursor: pointer; font-family: var(--font-body); }
+input, textarea { font-family: var(--font-body); }
+img { max-width: 100%; }
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ============ LAYOUT ============ */
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  grid-template-rows: 64px 1fr;
+  grid-template-areas:
+    "header header header"
+    "sidebar main aside";
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ============ HEADER ============ */
+.header {
+  grid-area: header;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  color: white;
+}
+.logo span { color: var(--accent); }
+
+.search-bar {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+.search-bar input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 8px 16px 8px 36px;
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.search-bar .search-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 14px; pointer-events: none;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 99px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  transition: all var(--transition);
+}
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 12px var(--accent-glow); }
+.btn-ghost {
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--border); }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: all var(--transition);
+}
+.icon-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  padding: 8px 10px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover { background: var(--bg-input); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-weight: 600;
+}
+.nav-item .count {
+  margin-left: auto;
+  font-size: 0.75rem;
+  background: var(--bg-input);
+  padding: 1px 7px;
+  border-radius: 99px;
+  color: var(--text-light);
+}
+.nav-item.active .count { background: var(--accent); color: white; }
+
+.nav-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* Accent picker in sidebar */
+.accent-picker {
+  padding: 8px 10px;
+  margin-top: auto;
+}
+.accent-picker-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+.accent-swatches {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.swatch {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.swatch:hover { transform: scale(1.2); }
+.swatch.active { border-color: var(--text); transform: scale(1.15); }
+
+/* ============ MAIN CONTENT ============ */
+.main {
+  grid-area: main;
+  padding: 24px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Feed tabs */
+.feed-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  width: fit-content;
+}
+.feed-tab {
+  padding: 7px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+.feed-tab.active { background: var(--accent); color: white; }
+.feed-tab:hover:not(.active) { background: var(--bg-input); color: var(--text); }
+
+/* New Post Button */
+.new-post-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.new-post-banner:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  background: var(--accent);
+  color: white;
+}
+.avatar.sm { width: 28px; height: 28px; font-size: 0.75rem; }
+.avatar.lg { width: 48px; height: 48px; font-size: 1rem; }
+
+.new-post-placeholder {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ============ POST CARD ============ */
+.post-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  position: relative;
+}
+.post-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.post-card.solved {
+  border-color: var(--solved-border);
+  background: var(--solved-bg);
+}
+
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.post-meta { flex: 1; }
+.post-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.post-author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.post-time { font-size: 0.8rem; color: var(--text-muted); }
+.platform-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-aws    { background: #fff3e0; color: #e65100; }
+.badge-gcp    { background: #e3f2fd; color: #0277bd; }
+.badge-azure  { background: #e8eaf6; color: #3949ab; }
+.badge-k8s    { background: #e0f7fa; color: #00838f; }
+.badge-github { background: #f3e5f5; color: #6a1b9a; }
+.badge-tf     { background: #e8f5e9; color: #2e7d32; }
+
+[data-theme="dark"] .badge-aws    { background: rgba(230,81,0,.18); color: #ffb74d; }
+[data-theme="dark"] .badge-gcp    { background: rgba(2,119,189,.18); color: #64b5f6; }
+[data-theme="dark"] .badge-azure  { background: rgba(57,73,171,.18); color: #9fa8da; }
+[data-theme="dark"] .badge-k8s    { background: rgba(0,131,143,.18); color: #4dd0e1; }
+[data-theme="dark"] .badge-github { background: rgba(106,27,154,.18); color: #ce93d8; }
+[data-theme="dark"] .badge-tf     { background: rgba(46,125,50,.18); color: #81c784; }
+
+.solved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+[data-theme="dark"] .solved-badge { background: rgba(6,95,70,.3); color: #6ee7b7; }
+
+.post-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.post-title:hover { color: var(--accent); }
+
+.post-body {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.code-snippet {
+  background: var(--code-bg);
+  color: var(--code-text);
+  font-family: var(--font-code);
+  font-size: 0.8rem;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  margin: 10px 0;
+  line-height: 1.6;
+  border-left: 3px solid var(--accent);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.tag:hover { background: var(--accent); color: white; }
+
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+.action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.action-btn.active { background: var(--upvote-bg); color: var(--upvote-text); border-color: currentColor; }
+.action-btn.upvoted { background: var(--accent-glow); color: var(--accent); border-color: var(--accent); }
+
+/* ============ CREATE POST MODAL ============ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--transition);
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  transform: translateY(20px);
+  transition: transform var(--transition);
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.close-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg-input);
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.close-btn:hover { background: var(--border); color: var(--text); }
+
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.form-textarea { min-height: 100px; resize: vertical; }
+.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px; }
+
+.tag-selector {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.tag-option {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+.tag-option:hover { border-color: var(--accent); color: var(--accent); }
+.tag-option.selected { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* ============ COMMENTS ============ */
+.comments-section {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.comments-section.hidden { display: none; }
+
+.comment {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+}
+.comment-body { flex: 1; }
+.comment-author { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.comment-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+.comment-time { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; }
+
+.comment-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+.comment-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.comment-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+.btn-send {
+  padding: 8px 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition: opacity var(--transition);
+}
+.btn-send:hover { opacity: 0.85; }
+
+/* ============ ASIDE ============ */
+.aside {
+  grid-area: aside;
+  padding: 24px 16px;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.widget {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.widget-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.trending-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.trending-tag:last-child { border-bottom: none; padding-bottom: 0; }
+.trending-tag:hover .tag-name { color: var(--accent); }
+.tag-name { font-weight: 600; color: var(--text); transition: color var(--transition); }
+.tag-count { font-size: 0.75rem; color: var(--text-muted); }
+
+.top-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.member-info { flex: 1; }
+.member-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.member-role { font-size: 0.75rem; color: var(--text-muted); }
+.member-points {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stack-chips {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+}
+.stack-chip {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+}
+
+.theme-toggle-widget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.toggle {
+  width: 44px; height: 24px;
+  background: var(--border);
+  border-radius: 99px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.toggle.on { background: var(--accent); }
+.toggle-knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle.on .toggle-knob { transform: translateX(20px); }
+
+/* ============ EMPTY STATE ============ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.empty-desc { font-size: 0.875rem; }
+
+/* ============ TOAST ============ */
+.toast-container {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 300;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+  animation: slideIn 0.3s ease, fadeOut 0.4s 2.6s forwards;
+  max-width: 300px;
+}
+@keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(10px); } }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1100px) {
+  .app-shell { grid-template-columns: 200px 1fr; grid-template-areas: "header header" "sidebar main"; }
+  .aside { display: none; }
+}
+@media (max-width: 720px) {
+  .app-shell { grid-template-columns: 1fr; grid-template-areas: "header" "main"; }
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======== HEADER ======== -->
+<div class="app-shell">
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">⚙</div>
+    DevOps<span>Hub</span>
+  </div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search posts, tags, people…" id="searchInput" oninput="filterPosts(this.value)">
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
+    <button class="btn btn-primary" onclick="openModal()">+ New Post</button>
+  </div>
+</header>
+
+<!-- ======== SIDEBAR ======== -->
+<aside class="sidebar">
+  <div class="nav-section-title">Feed</div>
+  <button class="nav-item active" onclick="setFilter('all', this)">🏠 All Posts <span class="count" id="count-all">5</span></button>
+  <button class="nav-item" onclick="setFilter('trending', this)">🔥 Trending <span class="count">3</span></button>
+  <button class="nav-item" onclick="setFilter('unsolved', this)">❓ Unsolved <span class="count" id="count-unsolved">2</span></button>
+  <button class="nav-item" onclick="setFilter('solved', this)">✅ Solved <span class="count" id="count-solved">3</span></button>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-title">Topics</div>
+  <button class="nav-item" onclick="filterByTag('cicd', this)">🔁 CI/CD</button>
+  <button class="nav-item" onclick="filterByTag('kubernetes', this)">⚓ Kubernetes</button>
+  <button class="nav-item" onclick="filterByTag('terraform', this)">🏗️ Terraform</button>
+  <button class="nav-item" onclick="filterByTag('aws', this)">☁️ AWS</button>
+  <button class="nav-item" onclick="filterByTag('docker', this)">🐳 Docker</button>
+  <button class="nav-item" onclick="filterByTag('monitoring', this)">📊 Monitoring</button>
+  <button class="nav-item" onclick="filterByTag('security', this)">🔒 Security</button>
+
+  <div class="nav-divider"></div>
+  <div class="accent-picker">
+    <div class="accent-picker-label">Theme Color</div>
+    <div class="accent-swatches">
+      <div class="swatch active" style="background:#00b09b" data-accent="teal" onclick="setAccent('teal', this)" title="Teal"></div>
+      <div class="swatch" style="background:#f7631b" data-accent="orange" onclick="setAccent('orange', this)" title="Orange"></div>
+      <div class="swatch" style="background:#7c3aed" data-accent="violet" onclick="setAccent('violet', this)" title="Violet"></div>
+      <div class="swatch" style="background:#e11d48" data-accent="rose" onclick="setAccent('rose', this)" title="Rose"></div>
+      <div class="swatch" style="background:#0284c7" data-accent="sky" onclick="setAccent('sky', this)" title="Sky"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ======== MAIN ======== -->
+<main class="main">
+  <div class="feed-tabs">
+    <button class="feed-tab active" onclick="setTabFilter('all', this)">All</button>
+    <button class="feed-tab" onclick="setTabFilter('question', this)">Questions</button>
+    <button class="feed-tab" onclick="setTabFilter('tip', this)">Tips & Tricks</button>
+    <button class="feed-tab" onclick="setTabFilter('incident', this)">Incidents</button>
+  </div>
+
+  <!-- Compose banner -->
+  <div class="new-post-banner" onclick="openModal()">
+    <div class="avatar" id="myAvatar">AK</div>
+    <div class="new-post-placeholder">What are you facing today? Share with the community…</div>
+    <button class="btn btn-ghost" style="pointer-events:none">Post</button>
+  </div>
+
+  <!-- Posts -->
+  <div id="postsContainer"></div>
+</main>
+
+<!-- ======== ASIDE ======== -->
+<aside class="aside">
+  <div class="widget">
+    <div class="widget-title">🔥 Trending Tags</div>
+    <div class="trending-tag" onclick="filterByTag('kubernetes')"><span class="tag-name">#kubernetes</span><span class="tag-count">42 posts</span></div>
+    <div class="trending-tag" onclick="filterByTag('cicd')"><span class="tag-name">#cicd</span><span class="tag-count">38 posts</span></div>
+    <div class="trending-tag" onclick="filterByTag('terraform')"><span class="tag-name">#terraform</span><span class="tag-count">31 posts</span></div>
+    <div class="trending-tag" onclick="filterByTag('aws')"><span class="tag-name">#aws</span><span class="tag-count">29 posts</span></div>
+    <div class="trending-tag" onclick="filterByTag('docker')"><span class="tag-name">#docker</span><span class="tag-count">24 posts</span></div>
+    <div class="trending-tag" onclick="filterByTag('monitoring')"><span class="tag-name">#monitoring</span><span class="tag-count">18 posts</span></div>
+  </div>
+
+  <div class="widget">
+    <div class="widget-title">🏆 Top Members</div>
+    <div class="top-member">
+      <div class="avatar sm" style="background:#f7631b">SR</div>
+      <div class="member-info">
+        <div class="member-name">Sneha R.</div>
+        <div class="stack-chips"><span class="stack-chip">AWS</span><span class="stack-chip">K8s</span><span class="stack-chip">Terraform</span></div>
+      </div>
+      <div class="member-points">2.4k</div>
+    </div>
+    <div class="top-member">
+      <div class="avatar sm" style="background:#7c3aed">MK</div>
+      <div class="member-info">
+        <div class="member-name">Mohit K.</div>
+        <div class="stack-chips"><span class="stack-chip">GCP</span><span class="stack-chip">ArgoCD</span></div>
+      </div>
+      <div class="member-points">1.9k</div>
+    </div>
+    <div class="top-member">
+      <div class="avatar sm" style="background:#0284c7">PA</div>
+      <div class="member-info">
+        <div class="member-name">Priya A.</div>
+        <div class="stack-chips"><span class="stack-chip">Azure</span><span class="stack-chip">GitHub</span></div>
+      </div>
+      <div class="member-points">1.6k</div>
+    </div>
+    <div class="top-member">
+      <div class="avatar sm" style="background:#e11d48">RV</div>
+      <div class="member-info">
+        <div class="member-name">Rahul V.</div>
+        <div class="stack-chips"><span class="stack-chip">Docker</span><span class="stack-chip">CI/CD</span></div>
+      </div>
+      <div class="member-points">1.2k</div>
+    </div>
+  </div>
+
+  <div class="widget">
+    <div class="widget-title">⚙ Appearance</div>
+    <div class="theme-toggle-widget">
+      <span>Dark Mode</span>
+      <div class="toggle" id="themeToggle" onclick="toggleTheme()">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="widget">
+    <div class="widget-title">📢 Quick Tips</div>
+    <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6">Use <strong style="color:var(--accent)">#solved</strong> tag or click ✅ on your post when your issue is resolved to help others find answers faster.</p>
+  </div>
+</aside>
+</div>
+
+<!-- ======== CREATE POST MODAL ======== -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Share with the Community</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Post Type</label>
+      <select class="form-select" id="postType">
+        <option value="question">❓ Question / Issue</option>
+        <option value="tip">💡 Tip & Trick</option>
+        <option value="incident">🚨 Incident Report</option>
+        <option value="discussion">💬 Discussion</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Platform / Stack</label>
+      <select class="form-select" id="postPlatform">
+        <option value="">Select platform (optional)</option>
+        <option value="aws">AWS</option>
+        <option value="gcp">GCP</option>
+        <option value="azure">Azure</option>
+        <option value="k8s">Kubernetes</option>
+        <option value="github">GitHub Actions</option>
+        <option value="tf">Terraform</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="form-input" id="postTitle" type="text" placeholder="e.g. ECS task keeps crashing on deployment…">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="postBody" placeholder="Describe the problem, what you've tried, error messages…"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Code Snippet (optional)</label>
+      <textarea class="form-textarea" id="postCode" placeholder="Paste a relevant YAML, Dockerfile, pipeline config…" style="font-family:var(--font-code);font-size:0.8rem;min-height:80px"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tags</label>
+      <div class="tag-selector" id="tagSelector">
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="cicd">#cicd</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="kubernetes">#kubernetes</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="docker">#docker</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="terraform">#terraform</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="aws">#aws</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="gcp">#gcp</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="azure">#azure</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="github-actions">#github-actions</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="monitoring">#monitoring</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="security">#security</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="networking">#networking</button>
+        <button class="tag-option" onclick="toggleTag(this)" data-tag="argocd">#argocd</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPost()">Publish Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== TOAST CONTAINER ======== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============ DATA ============
+const currentUser = { name: "Aakash K.", initials: "AK", color: "#00b09b" };
+
+let posts = [
+  {
+    id: 1, type: "question", solved: false,
+    author: "Sneha R.", initials: "SR", color: "#f7631b",
+    platform: "aws", time: "2 hours ago",
+    title: "ECS Service keeps failing health checks after blue-green deploy",
+    body: "My ECS service passes health checks locally but after a blue-green deployment via CodeDeploy, the new task fails ALB health checks. Rolling back doesn't help — the old task also starts failing.",
+    code: `# Dockerfile health check
+HEALTHCHECK --interval=30s --timeout=10s \\
+  --start-period=5s --retries=3 \\
+  CMD curl -f http://localhost:8080/health || exit 1`,
+    tags: ["aws", "cicd", "ecs", "alb"],
+    upvotes: 14, upvoted: false,
+    comments: [
+      { author: "Mohit K.", initials: "MK", color: "#7c3aed", text: "Check if your target group's health check path matches what the app exposes. Also increase start-period to 60s.", time: "1h ago" },
+      { author: "Priya A.", initials: "PA", color: "#0284c7", text: "Had same issue — the ALB security group wasn't allowing traffic from itself. Check inbound rules.", time: "45m ago" }
+    ]
+  },
+  {
+    id: 2, type: "tip", solved: true,
+    author: "Mohit K.", initials: "MK", color: "#7c3aed",
+    platform: "k8s", time: "5 hours ago",
+    title: "TIP: Use Karpenter instead of Cluster Autoscaler for 40% faster node provisioning",
+    body: "Switched from Cluster Autoscaler to Karpenter last month on our EKS cluster. Pod pending time dropped from ~3min to ~45sec. Karpenter provisions nodes directly from EC2 APIs and consolidates nodes automatically.",
+    code: `# Karpenter NodePool example
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]`,
+    tags: ["kubernetes", "aws", "autoscaling", "karpenter"],
+    upvotes: 38, upvoted: false,
+    comments: [
+      { author: "Rahul V.", initials: "RV", color: "#e11d48", text: "Great tip! We saw similar improvements. Make sure to set disruption budgets properly.", time: "4h ago" }
+    ]
+  },
+  {
+    id: 3, type: "incident", solved: true,
+    author: "Priya A.", initials: "PA", color: "#0284c7",
+    platform: "github", time: "Yesterday",
+    title: "INCIDENT POSTMORTEM: GitHub Actions self-hosted runner OOM killing builds",
+    body: "We had 3 hours of CI failures yesterday. Root cause: self-hosted runners on t3.medium (4GB RAM) were getting OOM killed during parallel matrix builds. Docker-in-docker was consuming 3.5GB per job.",
+    code: null,
+    tags: ["cicd", "github-actions", "docker", "incident"],
+    upvotes: 22, upvoted: false,
+    comments: [
+      { author: "Sneha R.", initials: "SR", color: "#f7631b", text: "We hit this too. Solution: add `--memory 2g` to docker run and use matrix concurrency limits.", time: "22h ago" }
+    ]
+  },
+  {
+    id: 4, type: "question", solved: false,
+    author: "Rahul V.", initials: "RV", color: "#e11d48",
+    platform: "tf", time: "1 day ago",
+    title: "Terraform state lock not releasing after interrupted apply",
+    body: "Running terraform apply with a remote S3 backend + DynamoDB locking. Got a network timeout mid-apply. Now every subsequent plan/apply says 'Error acquiring the state lock'. The process is no longer running.",
+    code: `# Force unlock (use with caution!)
+terraform force-unlock <LOCK_ID>
+
+# Get lock ID from error message or:
+aws dynamodb scan --table-name terraform-locks`,
+    tags: ["terraform", "aws", "state"],
+    upvotes: 9, upvoted: false,
+    comments: []
+  },
+  {
+    id: 5, type: "tip", solved: true,
+    author: "Arjun S.", initials: "AS", color: "#16a34a",
+    platform: "k8s", time: "2 days ago",
+    title: "TIP: Reduce Kubernetes image pull times with node-level image caching via Spegel",
+    body: "Spegel is a peer-to-peer OCI registry mirror that runs as a DaemonSet. Nodes share cached layers between each other, so new nodes don't have to pull from the registry. Massive improvement for large images.",
+    code: null,
+    tags: ["kubernetes", "docker", "performance"],
+    upvotes: 51, upvoted: false,
+    comments: []
+  }
+];
+
+let activeFilter = 'all';
+let activeTagFilter = null;
+let activeTabFilter = 'all';
+let searchQuery = '';
+
+// ============ RENDER ============
+function renderPosts() {
+  const container = document.getElementById('postsContainer');
+  let filtered = posts.filter(p => {
+    if (activeFilter === 'solved') return p.solved;
+    if (activeFilter === 'unsolved') return !p.solved;
+    if (activeFilter === 'trending') return p.upvotes >= 20;
+    return true;
+  });
+
+  if (activeTabFilter !== 'all') filtered = filtered.filter(p => p.type === activeTabFilter);
+  if (activeTagFilter) filtered = filtered.filter(p => p.tags.includes(activeTagFilter));
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      p.title.toLowerCase().includes(q) ||
+      p.body.toLowerCase().includes(q) ||
+      p.tags.some(t => t.includes(q))
+    );
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No posts found</div><div class="empty-desc">Try a different filter or be the first to post!</div></div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(post => renderPost(post)).join('');
+  updateCounts();
+}
+
+function renderPost(post) {
+  const platformBadge = post.platform
+    ? `<span class="platform-badge badge-${post.platform}">${post.platform.toUpperCase()}</span>` : '';
+  const solvedBadge = post.solved ? `<span class="solved-badge">✅ Solved</span>` : '';
+  const codeBlock = post.code ? `<div class="code-snippet">${escapeHtml(post.code)}</div>` : '';
+  const tags = post.tags.map(t => `<span class="tag" onclick="filterByTag('${t}')">#${t}</span>`).join('');
+  const upvoteClass = post.upvoted ? 'action-btn upvoted' : 'action-btn';
+
+  const commentsHtml = post.comments.map(c => `
+    <div class="comment">
+      <div class="avatar sm" style="background:${c.color}">${c.initials}</div>
+      <div class="comment-body">
+        <div class="comment-author">${c.author} <span style="font-weight:400;color:var(--text-light);font-size:0.75rem">${c.time}</span></div>
+        <div class="comment-text">${escapeHtml(c.text)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+  <div class="post-card ${post.solved ? 'solved' : ''}" id="post-${post.id}">
+    <div class="post-header">
+      <div class="avatar" style="background:${post.color}">${post.initials}</div>
+      <div class="post-meta">
+        <div class="post-author-info">
+          <span class="post-author">${post.author}</span>
+          ${platformBadge}
+          ${solvedBadge}
+        </div>
+        <span class="post-time">${post.time}</span>
+      </div>
+    </div>
+    <div class="post-title" onclick="toggleComments(${post.id})">${post.title}</div>
+    <div class="post-body">${post.body}</div>
+    ${codeBlock}
+    <div class="tags">${tags}</div>
+    <div class="post-footer">
+      <button class="${upvoteClass}" onclick="upvote(${post.id}, this)">
+        ▲ <span class="upvote-count">${post.upvotes}</span>
+      </button>
+      <button class="action-btn" onclick="toggleComments(${post.id})">
+        💬 ${post.comments.length} ${post.comments.length === 1 ? 'reply' : 'replies'}
+      </button>
+      <button class="action-btn" onclick="sharePost(${post.id})">↗ Share</button>
+      ${!post.solved ? `<button class="action-btn" onclick="markSolved(${post.id})" style="margin-left:auto">✅ Mark Solved</button>` : ''}
+    </div>
+    <div class="comments-section hidden" id="comments-${post.id}">
+      ${commentsHtml}
+      <div class="comment-form">
+        <div class="avatar sm" style="background:${currentUser.color}">${currentUser.initials}</div>
+        <textarea class="comment-input" rows="1" placeholder="Add a suggestion or solution…" id="comment-input-${post.id}" onkeydown="commentEnter(event, ${post.id})"></textarea>
+        <button class="btn-send" onclick="addComment(${post.id})">Send</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============ ACTIONS ============
+function upvote(id, btn) {
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  post.upvoted = !post.upvoted;
+  post.upvotes += post.upvoted ? 1 : -1;
+  btn.className = post.upvoted ? 'action-btn upvoted' : 'action-btn';
+  btn.querySelector('.upvote-count').textContent = post.upvotes;
+  if (post.upvoted) showToast('Post upvoted! 👍');
+}
+
+function markSolved(id) {
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  post.solved = true;
+  renderPosts();
+  showToast('Marked as solved! ✅ Great for the community.');
+}
+
+function sharePost(id) {
+  const post = posts.find(p => p.id === id);
+  navigator.clipboard?.writeText(`[DevOpsHub] ${post.title} — Share this post!`).catch(() => {});
+  showToast('Link copied to clipboard! 🔗');
+}
+
+function toggleComments(id) {
+  const section = document.getElementById(`comments-${id}`);
+  section.classList.toggle('hidden');
+  const input = document.getElementById(`comment-input-${id}`);
+  if (!section.classList.contains('hidden') && input) input.focus();
+}
+
+function commentEnter(event, id) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    addComment(id);
+  }
+}
+
+function addComment(id) {
+  const input = document.getElementById(`comment-input-${id}`);
+  const text = input.value.trim();
+  if (!text) return;
+  const post = posts.find(p => p.id === id);
+  post.comments.push({ author: currentUser.name, initials: currentUser.initials, color: currentUser.color, text, time: 'Just now' });
+  input.value = '';
+  renderPosts();
+  document.getElementById(`comments-${id}`).classList.remove('hidden');
+  showToast('Comment posted! 💬');
+}
+
+// ============ FILTERING ============
+function setFilter(filter, btn) {
+  activeFilter = filter;
+  activeTagFilter = null;
+  document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  renderPosts();
+}
+
+function filterByTag(tag, btn) {
+  activeTagFilter = activeTagFilter === tag ? null : tag;
+  activeFilter = 'all';
+  document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPosts();
+}
+
+function setTabFilter(tab, btn) {
+  activeTabFilter = tab;
+  document.querySelectorAll('.feed-tab').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  renderPosts();
+}
+
+function filterPosts(val) {
+  searchQuery = val;
+  renderPosts();
+}
+
+function updateCounts() {
+  document.getElementById('count-all').textContent = posts.length;
+  document.getElementById('count-solved').textContent = posts.filter(p => p.solved).length;
+  document.getElementById('count-unsolved').textContent = posts.filter(p => !p.solved).length;
+}
+
+// ============ MODAL ============
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('postTitle').focus();
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postBody').value = '';
+  document.getElementById('postCode').value = '';
+  document.querySelectorAll('.tag-option.selected').forEach(el => el.classList.remove('selected'));
+}
+function handleModalClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function toggleTag(btn) {
+  btn.classList.toggle('selected');
+}
+
+function submitPost() {
+  const title = document.getElementById('postTitle').value.trim();
+  const body = document.getElementById('postBody').value.trim();
+  if (!title || !body) { showToast('Please add a title and description! ⚠️'); return; }
+
+  const selectedTags = [...document.querySelectorAll('.tag-option.selected')].map(el => el.dataset.tag);
+  const platform = document.getElementById('postPlatform').value;
+  const type = document.getElementById('postType').value;
+  const code = document.getElementById('postCode').value.trim();
+
+  const newPost = {
+    id: Date.now(),
+    type,
+    solved: false,
+    author: currentUser.name,
+    initials: currentUser.initials,
+    color: currentUser.color,
+    platform: platform || null,
+    time: 'Just now',
+    title,
+    body,
+    code: code || null,
+    tags: selectedTags.length ? selectedTags : ['discussion'],
+    upvotes: 0,
+    upvoted: false,
+    comments: []
+  };
+
+  posts.unshift(newPost);
+  closeModal();
+  activeFilter = 'all';
+  activeTabFilter = 'all';
+  activeTagFilter = null;
+  renderPosts();
+  showToast('Post published! 🎉 The community will help you.');
+}
+
+// ============ THEME ============
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  const toggle = document.getElementById('themeToggle');
+  const btn = document.getElementById('themeBtn');
+  toggle.classList.toggle('on', !isDark);
+  btn.textContent = isDark ? '🌙' : '☀️';
+}
+
+function setAccent(accent, el) {
+  document.documentElement.setAttribute('data-accent', accent);
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Theme color updated! 🎨');
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3200);
+}
+
+// ============ INIT ============
+renderPosts();
+</script>
+</body>
+</html>
