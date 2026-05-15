@@ -44,5 +44,5 @@ pipeline {
             sh 'docker push astro103/devops-hub:${TAG}'
             }
         }
-    }  
+    }
 }
